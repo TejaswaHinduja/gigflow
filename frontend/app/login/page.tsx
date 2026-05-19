@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center ">
-      <div className="bg-card text-card-foreground  rounded-xl p-8 w-full max-w-sm ">
+      <div className="bg-card text-card-foreground rounded-xl p-8 w-full max-w-sm border border-border shadow-sm">
         <h1 className="text-2xl font-bold mb-6">Login</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

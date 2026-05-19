@@ -5,6 +5,12 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 
@@ -132,37 +138,44 @@ export default function LeadsPage() {
         </div>
 
        
-        <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center">
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center shadow-sm">
           <Input
             placeholder="Search name or email"
             value={search}
             onChange={(e) => { setSearch(e.target.value); resetPage(); }}
             className="w-52"
           />
-          <select
-            value={status}
-            onChange={(e) => { setStatus(e.target.value); resetPage(); }}
-            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
-          >
-            <option value="">All Statuses</option>
-            {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select
-            value={source}
-            onChange={(e) => { setSource(e.target.value); resetPage(); }}
-            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
-          >
-            <option value="">All Sources</option>
-            {SOURCE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select
-            value={sort}
-            onChange={(e) => { setSort(e.target.value); resetPage(); }}
-            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
-          >
-            <option value="latest">Latest</option>
-            <option value="oldest">Oldest</option>
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">{status || 'All Statuses'}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => { setStatus(''); resetPage(); }}>All Statuses</DropdownMenuItem>
+              {STATUS_OPTIONS.map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => { setStatus(s); resetPage(); }}>{s}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">{source || 'All Sources'}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => { setSource(''); resetPage(); }}>All Sources</DropdownMenuItem>
+              {SOURCE_OPTIONS.map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => { setSource(s); resetPage(); }}>{s}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">{sort === 'oldest' ? 'Oldest' : 'Latest'}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => { setSort('latest'); resetPage(); }}>Latest</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => { setSort('oldest'); resetPage(); }}>Oldest</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {(status || source || search) && (
             <Button variant="ghost" size="sm" onClick={() => { setStatus(''); setSource(''); setSearch(''); resetPage(); }}>
               Clear
@@ -170,7 +183,7 @@ export default function LeadsPage() {
           )}
         </div>
 
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
