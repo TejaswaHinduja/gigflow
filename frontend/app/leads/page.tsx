@@ -1,0 +1,289 @@
+'use client';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+
+type Lead = {
+  _id: string;
+  name: string;
+  email: string;
+  status: string;
+  source: string;
+  createdAt: string;
+};
+
+type LeadForm = { name: string; email: string; status: string; source: string };
+type Pagination = { page: number; limit: number; total: number; totalPages: number };
+
+const STATUS_OPTIONS = ['New', 'Contacted', 'Qualified', 'Lost'];
+const SOURCE_OPTIONS = ['Website', 'Instagram', 'Referral'];
+
+const STATUS_COLORS: Record<string, string> = {
+  New: 'bg-blue-100 text-blue-700',
+  Contacted: 'bg-yellow-100 text-yellow-700',
+  Qualified: 'bg-green-100 text-green-700',
+  Lost: 'bg-red-100 text-red-700',
+};
+
+const API = 'http://localhost:2000';
+
+export default function LeadsPage() {
+  const router = useRouter();
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('');
+  const [source, setSource] = useState('');
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('latest');
+  const [modal, setModal] = useState<'create' | 'edit' | null>(null);
+  const [selected, setSelected] = useState<Lead | null>(null);
+  const [serverError, setServerError] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<LeadForm>({ defaultValues: { status: 'New', source: 'Website' } });
+
+  function token() { return localStorage.getItem('token') || ''; }
+
+  const fetchLeads = useCallback(async () => {
+    const params = new URLSearchParams({ page: String(page), sort });
+    if (status) params.append('status', status);
+    if (source) params.append('source', source);
+    if (search) params.append('search', search);
+
+    const res = await fetch(`${API}/api/leads?${params}`, {
+      headers: { Authorization: `Bearer ${token()}` },
+    });
+    if (res.status === 401) { router.push('/login'); return; }
+    const data = await res.json();
+    setLeads(data.leads);
+    setPagination(data.pagination);
+  }, [page, status, source, search, sort, router]);
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) { router.push('/login'); return; }
+    fetchLeads();
+  }, [fetchLeads, router]);
+
+  function openCreate() {
+    reset({ name: '', email: '', status: 'New', source: 'Website' });
+    setServerError('');
+    setSelected(null);
+    setModal('create');
+  }
+
+  function openEdit(lead: Lead) {
+    reset({ name: lead.name, email: lead.email, status: lead.status, source: lead.source });
+    setServerError('');
+    setSelected(lead);
+    setModal('edit');
+  }
+
+  function closeModal() { setModal(null); setSelected(null); }
+
+  async function onSave(data: LeadForm) {
+    setServerError('');
+    const url = modal === 'edit' ? `${API}/api/leads/${selected!._id}` : `${API}/api/leads`;
+    const res = await fetch(url, {
+      method: modal === 'edit' ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const json = await res.json();
+      setServerError(json.message || 'Error saving lead');
+      return;
+    }
+    closeModal();
+    fetchLeads();
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this lead?')) return;
+    await fetch(`${API}/api/leads/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token()}` },
+    });
+    fetchLeads();
+  }
+
+  function handleLogout() { localStorage.removeItem('token'); router.push('/login'); }
+  function resetPage() { setPage(1); }
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      <div className="max-w-6xl mx-auto p-6">
+
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">Leads</h1>
+          <div className="flex gap-2">
+            <Button onClick={openCreate}>Add Lead</Button>
+            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          </div>
+        </div>
+
+       
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center">
+          <Input
+            placeholder="Search name or email"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+            className="w-52"
+          />
+          <select
+            value={status}
+            onChange={(e) => { setStatus(e.target.value); resetPage(); }}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+          >
+            <option value="">All Statuses</option>
+            {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select
+            value={source}
+            onChange={(e) => { setSource(e.target.value); resetPage(); }}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+          >
+            <option value="">All Sources</option>
+            {SOURCE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select
+            value={sort}
+            onChange={(e) => { setSort(e.target.value); resetPage(); }}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+          >
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+          {(status || source || search) && (
+            <Button variant="ghost" size="sm" onClick={() => { setStatus(''); setSource(''); setSearch(''); resetPage(); }}>
+              Clear
+            </Button>
+          )}
+        </div>
+
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {leads.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
+                    No leads found
+                  </TableCell>
+                </TableRow>
+              ) : leads.map((lead) => (
+                <TableRow key={lead._id}>
+                  <TableCell className="font-medium">{lead.name}</TableCell>
+                  <TableCell className="text-muted-foreground">{lead.email}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status] ?? ''}`}>
+                      {lead.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>{lead.source}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(lead.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => openEdit(lead)}>Edit</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(lead._id)}>Delete</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        
+        {pagination.totalPages > 0 && (
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-muted-foreground">
+              {pagination.total === 0
+                ? 'No results'
+                : `Showing ${(page - 1) * 10 + 1}–${Math.min(page * 10, pagination.total)} of ${pagination.total}`}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">Page {page} of {pagination.totalPages}</span>
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= pagination.totalPages}>
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {modal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card text-card-foreground border border-border rounded-xl p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">{modal === 'create' ? 'Add Lead' : 'Edit Lead'}</h2>
+            <form onSubmit={handleSubmit(onSave)} className="space-y-3">
+              <div>
+                <Input
+                  placeholder="Name"
+                  {...register('name', { required: 'Name is required' })}
+                />
+                {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
+              </div>
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  {...register('email', { required: 'Email is required' })}
+                />
+                {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
+              </div>
+              <div>
+                <select
+                  {...register('status', { required: true })}
+                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+                >
+                  {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <select
+                  {...register('source', { required: true })}
+                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+                >
+                  {SOURCE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              {serverError && <p className="text-destructive text-sm">{serverError}</p>}
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" disabled={isSubmitting} className="flex-1">
+                  {isSubmitting ? 'Saving...' : 'Save'}
+                </Button>
+                <Button type="button" variant="outline" onClick={closeModal} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

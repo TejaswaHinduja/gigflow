@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\tejas\\\\OneDrive\\\\Desktop\\\\hire\" -Recurse -Force | Select-Object -Property FullName | ForEach-Object { $_.FullName.Replace\\(\"c:\\\\Users\\\\tejas\\\\OneDrive\\\\Desktop\\\\hire\\\\\", \"\"\\) } | Sort-Object)",
+      "Bash(Select-String -Pattern \"ts-node|tsx|tsc\")",
+      "Bash(node_modules/.bin/tsc --noEmit)"
+    ]
+  }
+}
