@@ -36,34 +36,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center ">
-      <div className="bg-card text-card-foreground rounded-xl p-8 w-full max-w-sm border border-border shadow-sm">
-        <h1 className="text-2xl font-bold mb-6">Login</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Input
-              type="email"
-              placeholder="Email"
-              {...register('email', { required: 'Email is required' })}
-            />
-            {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
-          </div>
-          <div>
-            <Input
-              type="password"
-              placeholder="Password"
-              {...register('password', { required: 'Password is required' })}
-            />
-            {errors.password && <p className="text-destructive text-xs mt-1">{errors.password.message}</p>}
-          </div>
-          {errors.root && <p className="text-destructive text-sm">{errors.root.message}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Logging in...' : 'Login'}
-          </Button>
-        </form>
-        <p className="mt-4 text-sm text-center text-muted-foreground">
+    <div className="flex flex-col items-start max-w-sm mx-auto h-dvh pt-4 md:pt-20">
+
+      <div className="flex items-center w-full py-8 border-b border-border/80">
+        <Link href="/" className="flex items-center gap-x-2">
+          <h1 className="text-lg font-medium">hire</h1>
+        </Link>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4 py-6">
+        <div className="flex flex-col gap-2 w-full">
+          <label htmlFor="email" className="text-sm">Email</label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Email"
+            className="w-full"
+            {...register('email', { required: 'Email is required' })}
+          />
+          {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <label htmlFor="password" className="text-sm">Password</label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Password"
+            className="w-full"
+            {...register('password', { required: 'Password is required' })}
+          />
+          {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+        </div>
+
+        {errors.root && <p className="text-sm text-red-600">{errors.root.message}</p>}
+
+        <Button type="submit" className="w-full mt-2">{isSubmitting ? 'Logging in...' : 'Login'}</Button>
+      </form>
+
+      <div className="flex items-start mt-auto border-t border-border/80 py-6 w-full">
+        <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-primary hover:underline">Register</Link>
+          <Link href="/register" className="text-primary">Register</Link>
         </p>
       </div>
     </div>
