@@ -18,8 +18,8 @@ authRoutes.post('/signup', async (req, res) => {
   }
   const hashed = await bcrypt.hash(password, 10);
   const user = await User.create({ name, email, password: hashed, role });
-  const token = generateToken(user._id.toString(), user.role as string);
-  res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  generateToken(user._id.toString(), user.role as string, res);
+  res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 });
 
 authRoutes.post('/login', async (req, res) => {
@@ -33,7 +33,6 @@ authRoutes.post('/login', async (req, res) => {
     res.status(401).json({ message: 'Invalid credentials' });
     return;
   }
-  const token = generateToken(user._id.toString(), user.role as string);
-  res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+  generateToken(user._id.toString(), user.role as string, res);
   res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 });
