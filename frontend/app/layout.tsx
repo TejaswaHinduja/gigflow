@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Manrope,Noto_Serif } from "next/font/google";
 
 import "./globals.css";
+import { ThemeProvider } from "./theme-provider";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -37,7 +38,11 @@ export default function RootLayout({
       lang="en"
       className={`${notoSerif.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,20 +1,22 @@
 'use client';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem,} from '@/components/ui/dropdown-menu';
+import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem, DropdownMenuGroup,} from '@/components/ui/dropdown-menu';
 
-type FormData = { 
-  name: string; 
-  email: string; 
-  password: string; 
-  role: string 
+type FormData = {
+  name: string;
+  email: string;
+  password: string;
+  role: string
 };
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [role, setRole] = useState('admin');
   const {register,handleSubmit,setError,formState: { errors, isSubmitting },} = useForm<FormData>();
 
   async function onSubmit(data: FormData) {
@@ -22,14 +24,14 @@ export default function RegisterPage() {
       const res = await fetch('http://localhost:2000/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, role }),
+        credentials: 'include',
       });
       const json = await res.json();
       if (!res.ok) {
         setError('root', { message: json.message || 'Registration failed' });
         return;
       }
-      localStorage.setItem('token', json.token);
       router.push('/leads');
     } catch {
       setError('root', { message: 'Network error' });
@@ -85,14 +87,21 @@ export default function RegisterPage() {
 
         <div className="flex flex-col gap-2 w-full">
           <label htmlFor="role" className="text-sm">Role</label>
-          <select
-            id="role"
-            className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
-            {...register('role', { required: 'Role is required' })}
-          >
-            <option value="sales">Sales</option>
-            <option value="admin">Admin</option>
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">{role === 'admin' ? 'Admin' : 'Sales User'}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onSelect={() => setRole('admin')}>
+                Admin
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setRole('sales')}>
+                Sales User
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
         </div>
 

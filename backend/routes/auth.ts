@@ -34,5 +34,6 @@ authRoutes.post('/login', async (req, res) => {
     return;
   }
   const token = generateToken(user._id.toString(), user.role as string);
-  res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+  res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 });

@@ -4,15 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem} from '@/components/ui/dropdown-menu';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useDebounce } from '@/hooks/useDebounce';
 import { getRole } from '@/lib/auth';
 import { exportLeadsCsv } from '@/lib/export';
@@ -39,7 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
   Lost: 'bg-red-100 text-red-700',
 };
 
-const API = 'http://localhost:2000';
+
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -61,16 +55,14 @@ export default function LeadsPage() {
 
   const { register,handleSubmit,reset,formState: { errors, isSubmitting }} = useForm<LeadForm>({ defaultValues: { status: 'New', source: 'Website' } });
 
-  function token() { return localStorage.getItem('token') || ''; }
-
   const fetchLeads = useCallback(async () => {
     const params = new URLSearchParams({ page: String(page), sort });
     if (status) params.append('status', status);
     if (source) params.append('source', source);
     if (debouncedSearch) params.append('search', debouncedSearch);
 
-    const res = await fetch(`${process.env.BACKEND_URL}/api/leads?${params}`, {
-      headers: { Authorization: `Bearer ${token()}` },
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads?${params}`, {
+      credentials: 'include',
     });
     if (res.status === 401) { router.push('/login'); return; }
     const data = await res.json();
@@ -79,7 +71,6 @@ export default function LeadsPage() {
   }, [page, status, source, debouncedSearch, sort, router]);
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { router.push('/login'); return; }
     fetchLeads();
   }, [fetchLeads, router]);
 
@@ -104,11 +95,12 @@ export default function LeadsPage() {
 
   async function onSave(data: LeadForm) {
     setServerError('');
-    const url = modal === 'edit' ? `${API}/api/leads/${selected!._id}` : `${API}/api/leads`;
+    const url = modal === 'edit' ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads/${selected!._id}` : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads`;
     const res = await fetch(url, {
       method: modal === 'edit' ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
+      credentials: 'include',
     });
     if (!res.ok) {
       const json = await res.json();
@@ -121,9 +113,9 @@ export default function LeadsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this lead?')) return;
-    await fetch(`${API}/api/leads/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${token()}` },
+      credentials: 'include',
     });
     fetchLeads();
   }
@@ -134,15 +126,20 @@ export default function LeadsPage() {
     if (source) params.append('source', source);
     if (debouncedSearch) params.append('search', debouncedSearch);
 
-    const res = await fetch(`${API}/api/leads/export?${params}`, {
-      headers: { Authorization: `Bearer ${token()}` },
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads/export?${params}`, {
+      credentials: 'include',
     });
     if (!res.ok) return;
     const data = await res.json();
     exportLeadsCsv(data.leads);
   }
 
-  function handleLogout() { localStorage.removeItem('token'); router.push('/login'); }
+  function handleLogout() {
+    fetch('http://localhost:2000/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    }).then(() => router.push('/login'));
+  }
   function resetPage() { setPage(1); }
 
   return (
@@ -156,6 +153,7 @@ export default function LeadsPage() {
             {isAdmin && (
               <Button variant="outline" onClick={handleExport}>Export CSV</Button>
             )}
+            <ThemeToggle />
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>
         </div>

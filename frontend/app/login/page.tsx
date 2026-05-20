@@ -22,13 +22,14 @@ export default function LoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       const json = await res.json();
       if (!res.ok) {
         setError('root', { message: json.message || 'Login failed' });
         return;
       }
-      localStorage.setItem('token', json.token);
+      localStorage.setItem('role', json.user.role);
       router.push('/leads');
     } catch {
       setError('root', { message: 'Network error' });

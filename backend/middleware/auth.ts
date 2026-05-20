@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../lib/token';
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) {
+  const token = req.cookies.jwt;
+  if (!token) {
     res.status(401).json({ message: 'Unauthorized' });
     return;
   }
   try {
-    const payload = verifyToken(header.split(' ')[1]);
+    const payload = verifyToken(token);
     (req as any).user = payload;
     next();
   } catch {
