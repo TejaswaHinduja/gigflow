@@ -285,7 +285,7 @@ export default function LeadsPage() {
               <div>
                 <Input
                   placeholder="Name"
-                  className=" text-white dark:bg-white dark:text-black"
+                  className=" text-black dark:bg-white dark:text-black"
                   {...register('name', { required: 'Name is required' })}
                 />
                 {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
@@ -294,7 +294,7 @@ export default function LeadsPage() {
                 <Input
                   type="email"
                   placeholder="Email"
-                  className=" text-white dark:bg-white dark:text-black"
+                  className=" text-black dark:bg-white dark:text-black"
                   {...register('email', { required: 'Email is required' })}
                 />
                 {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
