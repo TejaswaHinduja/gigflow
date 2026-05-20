@@ -53,7 +53,7 @@ export default function RegisterPage() {
           <Input
             id="name"
             placeholder="Name"
-            className="w-full bg-black text-white "
+            className="w-full  text-white "
             {...register('name', { required: 'Name is required' })}
           />
           {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
@@ -65,7 +65,7 @@ export default function RegisterPage() {
             id="email"
             type="email"
             placeholder="Email"
-            className="w-full bg-black text-white "
+            className="w-full  text-white "
             {...register('email', { required: 'Email is required' })}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             id="password"
             type="password"
             placeholder="Password"
-            className="w-full bg-black text-white "
+            className="w-full  text-white "
             {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Minimum 6 characters' } })}
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
@@ -89,7 +89,7 @@ export default function RegisterPage() {
           <label htmlFor="role" className="text-sm">Role</label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="bg-black text-white ">{role === 'admin' ? 'Admin' : 'Sales User'}</Button>
+              <Button variant="outline" className=" text-black ">{role === 'admin' ? 'Admin' : 'Sales User'}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
             <DropdownMenuGroup>

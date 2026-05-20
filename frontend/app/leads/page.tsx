@@ -294,7 +294,7 @@ export default function LeadsPage() {
               <div>
                 <select
                   {...register('status', { required: true })}
-                  className="w-full border border-border dark:border-zinc-700 rounded-lg px-3 py-1.5 text-sm bg-card dark:bg-white text-card-foreground dark:text-black"
+                  className="w-full border border-border dark:border-zinc-700  rounded-lg px-3 py-1.5 text-sm bg-card dark:bg-white text-card-foreground dark:text-black"
                 >
                   {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>

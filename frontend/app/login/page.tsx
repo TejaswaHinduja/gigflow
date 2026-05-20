@@ -52,7 +52,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             placeholder="Email"
-            className="w-full bg-black text-white dark:bg-white dark:text-black"
+            className="w-full  text-white "
             {...register('email', { required: 'Email is required' })}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
@@ -64,7 +64,7 @@ export default function LoginPage() {
             id="password"
             type="password"
             placeholder="Password"
-            className="w-full bg-black text-white dark:bg-white dark:text-black"
+            className="w-full  text-white"
             {...register('password', { required: 'Password is required' })}
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
