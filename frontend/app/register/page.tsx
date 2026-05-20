@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,10 +19,21 @@ export default function RegisterPage() {
   const router = useRouter();
   const [role, setRole] = useState('admin');
   const {register,handleSubmit,setError,formState: { errors, isSubmitting },} = useForm<FormData>();
-
+  const { theme, setTheme } = useTheme();
+    useEffect(() => {
+      const previousTheme = theme;
+  
+      setTheme('light');
+  
+      return () => {
+        if (previousTheme) {
+          setTheme(previousTheme);
+        }
+      };
+    }, [theme, setTheme]);
   async function onSubmit(data: FormData) {
     try {
-      const res = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, role }),

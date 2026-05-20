@@ -20,8 +20,18 @@ type Lead = {
   createdAt: string;
 };
 
-type LeadForm = { name: string; email: string; status: string; source: string };
-type Pagination = { page: number; limit: number; total: number; totalPages: number };
+type LeadForm = { 
+  name: string; 
+  email: string; 
+  status: string; 
+  source: string 
+};
+type Pagination = { 
+  page: number; 
+  limit: number; 
+  total: number; 
+  totalPages: number 
+};
 
 const STATUS_OPTIONS = ['New', 'Contacted', 'Qualified', 'Lost'];
 const SOURCE_OPTIONS = ['Website', 'Instagram', 'Referral'];
@@ -32,8 +42,6 @@ const STATUS_COLORS: Record<string, string> = {
   Qualified: 'bg-green-100 text-green-700',
   Lost: 'bg-red-100 text-red-700',
 };
-
-
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -135,7 +143,7 @@ export default function LeadsPage() {
   }
 
   function handleLogout() {
-    fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     }).then(() => router.push('/login'));
