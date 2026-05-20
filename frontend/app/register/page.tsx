@@ -65,7 +65,7 @@ export default function RegisterPage() {
           <Input
             id="name"
             placeholder="Name"
-            className="w-full  text-white "
+            className="w-full  text-black "
             {...register('name', { required: 'Name is required' })}
           />
           {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             id="email"
             type="email"
             placeholder="Email"
-            className="w-full  text-white "
+            className="w-full text-black"
             {...register('email', { required: 'Email is required' })}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
