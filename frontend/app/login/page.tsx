@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   async function onSubmit(data: FormData) {
     try {
-      const res = await fetch('http://localhost:2000/api/auth/login', {
+      const res = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
