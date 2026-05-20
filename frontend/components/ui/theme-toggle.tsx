@@ -1,13 +1,18 @@
 'use client';
-import { useTheme } from '@/app/theme-provider';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
-    <Button variant="outline" size="sm" onClick={toggleTheme}>
-      {theme === 'light' ? '🌙' : '☀️'}
+    <Button
+      variant="outline"
+    
+      className="bg-black text-white dark:bg-white dark:text-black"
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+    >
+      {resolvedTheme === 'dark' ? '☀️' : '🌙'}
     </Button>
   );
 }

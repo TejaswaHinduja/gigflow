@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Manrope,Noto_Serif } from "next/font/google";
-
-import "./globals.css";
+import { Inter, Noto_Serif } from "next/font/google";
 import { ThemeProvider } from "./theme-provider";
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  weight:["400","500","600","700"]
-});
+import "./globals.css";
 
 const notoSerif = Noto_Serif({
   variable: "--font-notoserif",
@@ -19,9 +12,8 @@ const notoSerif = Noto_Serif({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight:["400","500","600","700"]
+  weight: ["400", "500", "600", "700"],
 });
-
 
 export const metadata: Metadata = {
   title: "GiG Flow",
@@ -36,6 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${notoSerif.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

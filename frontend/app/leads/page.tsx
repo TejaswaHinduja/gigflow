@@ -135,7 +135,7 @@ export default function LeadsPage() {
   }
 
   function handleLogout() {
-    fetch('http://localhost:2000/api/auth/logout', {
+    fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     }).then(() => router.push('/login'));
@@ -143,31 +143,31 @@ export default function LeadsPage() {
   function resetPage() { setPage(1); }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 dark:bg-black">
       <div className="max-w-6xl mx-auto p-6">
 
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Leads</h1>
+          <h1 className="text-2xl font-bold dark:text-white">GiG Flow</h1>
           <div className="flex gap-2">
-            {isAdmin && <Button onClick={openCreate}>Add Lead</Button>}
+            {isAdmin && <Button className="bg-black text-white dark:bg-white dark:text-black"onClick={openCreate}>Add Lead</Button>}
             {isAdmin && (
-              <Button variant="outline" onClick={handleExport}>Export CSV</Button>
+              <Button className="bg-black text-white dark:bg-white dark:text-black"onClick={handleExport}>Export CSV</Button>
             )}
             <ThemeToggle />
-            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+            <Button variant="outline" className="bg-black text-white dark:bg-white dark:text-black"onClick={handleLogout}>Logout</Button>
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center shadow-sm">
+        <div className="bg-card dark:bg-zinc-900 border border-border dark:border-zinc-800 rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center shadow-sm">
           <Input
             placeholder="Search name or email"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-52"
+            className="w-52  dark:bg-white dark:text-black"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">{status || 'All Statuses'}</Button>
+              <Button variant="outline" size="sm" className=" dark:bg-white dark:text-black">{status || 'All Statuses'}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onSelect={() => { setStatus(''); resetPage(); }}>All Statuses</DropdownMenuItem>
@@ -178,7 +178,7 @@ export default function LeadsPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">{source || 'All Sources'}</Button>
+              <Button variant="outline" size="sm" className=" dark:bg-white dark:text-black">{source || 'All Sources'}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onSelect={() => { setSource(''); resetPage(); }}>All Sources</DropdownMenuItem>
@@ -189,7 +189,7 @@ export default function LeadsPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">{sort === 'oldest' ? 'Oldest' : 'Latest'}</Button>
+              <Button variant="outline" size="sm" className=" dark:bg-white dark:text-black">{sort === 'oldest' ? 'Oldest' : 'Latest'}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onSelect={() => { setSort('latest'); resetPage(); }}>Latest</DropdownMenuItem>
@@ -203,43 +203,43 @@ export default function LeadsPage() {
           )}
         </div>
 
-        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Created</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
+        <div className="bg-card  border border-border  rounded-xl overflow-hidden shadow-sm">
+          <Table className='dark:bg-black'>
+            <TableHeader >
+              <TableRow className='dark:text-white'>
+                <TableHead className='dark:text-white' >Name</TableHead>
+                <TableHead className='dark:text-white'>Email</TableHead>
+                <TableHead className='dark:text-white'>Status</TableHead>
+                <TableHead className='dark:text-white'>Source</TableHead>
+                <TableHead className='dark:text-white'>Created</TableHead>
+                {isAdmin && <TableHead className='dark:text-white'>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {leads.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-muted-foreground py-10 dark:text-white">
                     No leads found
                   </TableCell>
                 </TableRow>
               ) : leads.map((lead) => (
                 <TableRow key={lead._id}>
-                  <TableCell className="font-medium">{lead.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{lead.email}</TableCell>
+                  <TableCell className="font-medium dark:text-white">{lead.name}</TableCell>
+                  <TableCell className="text-muted-foreground dark:text-white">{lead.email}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status] ?? ''}`}>
                       {lead.status}
                     </span>
                   </TableCell>
-                  <TableCell>{lead.source}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="dark:text-white">{lead.source}</TableCell>
+                  <TableCell className="text-muted-foreground dark:text-white">
                     {new Date(lead.createdAt).toLocaleDateString()}
                   </TableCell>
                   {isAdmin && (
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => openEdit(lead)}>Edit</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(lead._id)}>Delete</Button>
+                        <Button size="sm" variant="outline" className="bg-black text-white dark:bg-white dark:text-black" onClick={() => openEdit(lead)}>Edit</Button>
+                        <Button size="sm" variant="destructive" className="bg-black text-white dark:bg-white dark:text-black" onClick={() => handleDelete(lead._id)}>Delete</Button>
                       </div>
                     </TableCell>
                   )}
@@ -251,17 +251,17 @@ export default function LeadsPage() {
 
         {pagination.totalPages > 0 && (
           <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground dark:text-gray-400">
               {pagination.total === 0
                 ? 'No results'
                 : `Showing ${(page - 1) * 10 + 1}–${Math.min(page * 10, pagination.total)} of ${pagination.total}`}
             </p>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>
+              <Button variant="outline" size="sm" className="bg-black text-white dark:bg-white dark:text-black" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>
                 Previous
               </Button>
-              <span className="text-sm text-muted-foreground">Page {page} of {pagination.totalPages}</span>
-              <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= pagination.totalPages}>
+              <span className="text-sm text-muted-foreground dark:text-gray-400">Page {page} of {pagination.totalPages}</span>
+              <Button variant="outline" size="sm" className="bg-black text-white dark:bg-white dark:text-black" onClick={() => setPage((p) => p + 1)} disabled={page >= pagination.totalPages}>
                 Next
               </Button>
             </div>
@@ -271,12 +271,13 @@ export default function LeadsPage() {
 
       {modal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card text-card-foreground border border-border rounded-xl p-6 w-full max-w-md shadow-lg">
+          <div className="bg-card dark:bg-zinc-900 text-card-foreground dark:text-white border border-border dark:border-zinc-800 rounded-xl p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">{modal === 'create' ? 'Add Lead' : 'Edit Lead'}</h2>
             <form onSubmit={handleSubmit(onSave)} className="space-y-3">
               <div>
                 <Input
                   placeholder="Name"
+                  className=" text-white dark:bg-white dark:text-black"
                   {...register('name', { required: 'Name is required' })}
                 />
                 {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
@@ -285,6 +286,7 @@ export default function LeadsPage() {
                 <Input
                   type="email"
                   placeholder="Email"
+                  className=" text-white dark:bg-white dark:text-black"
                   {...register('email', { required: 'Email is required' })}
                 />
                 {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
@@ -292,7 +294,7 @@ export default function LeadsPage() {
               <div>
                 <select
                   {...register('status', { required: true })}
-                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+                  className="w-full border border-border dark:border-zinc-700 rounded-lg px-3 py-1.5 text-sm bg-card dark:bg-white text-card-foreground dark:text-black"
                 >
                   {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -300,17 +302,17 @@ export default function LeadsPage() {
               <div>
                 <select
                   {...register('source', { required: true })}
-                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm bg-card text-card-foreground"
+                  className="w-full border border-border dark:border-zinc-700 rounded-lg px-3 py-1.5 text-sm bg-card dark:bg-white text-card-foreground dark:text-black"
                 >
                   {SOURCE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               {serverError && <p className="text-destructive text-sm">{serverError}</p>}
               <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={isSubmitting} className="flex-1">
+                <Button type="submit" disabled={isSubmitting} className="flex-1 bg-black text-white dark:bg-white dark:text-black">
                   {isSubmitting ? 'Saving...' : 'Save'}
                 </Button>
-                <Button type="button" variant="outline" onClick={closeModal} className="flex-1">
+                <Button type="button" variant="outline" onClick={closeModal} className="flex-1 bg-black text-white dark:bg-white dark:text-black">
                   Cancel
                 </Button>
               </div>

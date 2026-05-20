@@ -52,7 +52,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             placeholder="Email"
-            className="w-full"
+            className="w-full bg-black text-white dark:bg-white dark:text-black"
             {...register('email', { required: 'Email is required' })}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
@@ -64,7 +64,7 @@ export default function LoginPage() {
             id="password"
             type="password"
             placeholder="Password"
-            className="w-full"
+            className="w-full bg-black text-white dark:bg-white dark:text-black"
             {...register('password', { required: 'Password is required' })}
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
@@ -72,7 +72,7 @@ export default function LoginPage() {
 
         {errors.root && <p className="text-sm text-red-600">{errors.root.message}</p>}
 
-        <Button type="submit" className="w-full mt-2">{isSubmitting ? 'Logging in...' : 'Login'}</Button>
+        <Button type="submit" className="w-full mt-2 bg-black text-white dark:bg-white dark:text-black">{isSubmitting ? 'Logging in...' : 'Login'}</Button>
       </form>
 
       <div className="flex items-start md:mt-auto border-t border-border/80 py-6 w-full">
