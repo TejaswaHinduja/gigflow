@@ -4,17 +4,18 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem,} from '@/components/ui/dropdown-menu';
 
-type FormData = { name: string; email: string; password: string; role: string };
+type FormData = { 
+  name: string; 
+  email: string; 
+  password: string; 
+  role: string 
+};
 
 export default function RegisterPage() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>();
+  const {register,handleSubmit,setError,formState: { errors, isSubmitting },} = useForm<FormData>();
 
   async function onSubmit(data: FormData) {
     try {
@@ -36,11 +37,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-col items-start max-w-sm mx-auto h-dvh pt-4 md:pt-20">
+    <div className="flex flex-col w-full max-w-md items-start mx-auto h-dvh pt-4 md:pt-20">
 
       <div className="flex items-center w-full py-8 border-b border-border/80">
         <Link href="/" className="flex items-center gap-x-2">
-          <h1 className="text-lg font-medium">hire</h1>
+          <h1 className="text-lg font-medium">GIG FLOW</h1>
         </Link>
       </div>
 
@@ -95,10 +96,10 @@ export default function RegisterPage() {
           {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>{isSubmitting ? 'Registering...' : 'Register'}</Button>
+        <Button type="submit" className="w-full mt-2 cursor-pointer" disabled={isSubmitting}>{isSubmitting ? 'Registering...' : 'Register'}</Button>
       </form>
 
-      <div className="flex items-start mt-auto border-t border-border/80 py-6 w-full">
+      <div className="flex items-start md:mt-auto border-t border-border/80 py-6 w-full">
         <p className="text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link href="/login" className="text-primary">Login</Link>

@@ -36,11 +36,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-start max-w-sm mx-auto h-dvh pt-4 md:pt-20">
+    <div className="flex flex-col w-full max-w-md items-start mx-auto h-dvh pt-4 md:pt-20">
 
       <div className="flex items-center w-full py-8 border-b border-border/80">
         <Link href="/" className="flex items-center gap-x-2">
-          <h1 className="text-lg font-medium">hire</h1>
+          <h1 className="text-lg font-medium">GIG FLOW</h1>
         </Link>
       </div>
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
         <Button type="submit" className="w-full mt-2">{isSubmitting ? 'Logging in...' : 'Login'}</Button>
       </form>
 
-      <div className="flex items-start mt-auto border-t border-border/80 py-6 w-full">
+      <div className="flex items-start md:mt-auto border-t border-border/80 py-6 w-full">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary">Register</Link>

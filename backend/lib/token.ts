@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-
-const SECRET = process.env.JWT_SECRET || 'supersecretkey';
+import dotenv from "dotenv"
+dotenv.config()
+const SECRET = process.env.JWT_SECRET ;
 
 export function generateToken(userId: string, role: string) {
   return jwt.sign({ userId, role }, SECRET, { expiresIn: '7d' });
