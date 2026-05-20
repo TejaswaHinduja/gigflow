@@ -44,6 +44,7 @@ export default function RegisterPage() {
         setError('root', { message: json.message || 'Registration failed' });
         return;
       }
+      localStorage.setItem('role', json.user.role);
       router.push('/leads');
     } catch {
       setError('root', { message: 'Network error' });
@@ -89,7 +90,7 @@ export default function RegisterPage() {
             id="password"
             type="password"
             placeholder="Password"
-            className="w-full  text-white "
+            className="w-full "
             {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Minimum 6 characters' } })}
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
