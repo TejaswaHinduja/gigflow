@@ -8,7 +8,8 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     return;
   }
   try {
-    verifyToken(header.split(' ')[1]);
+    const payload = verifyToken(header.split(' ')[1]);
+    (req as any).user = payload;
     next();
   } catch {
     res.status(401).json({ message: 'Invalid token' });

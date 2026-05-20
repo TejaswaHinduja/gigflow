@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-type FormData = { name: string; email: string; password: string };
+type FormData = { name: string; email: string; password: string; role: string };
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -81,6 +81,19 @@ export default function RegisterPage() {
         </div>
 
         {errors.root && <p className="text-sm text-red-600">{errors.root.message}</p>}
+
+        <div className="flex flex-col gap-2 w-full">
+          <label htmlFor="role" className="text-sm">Role</label>
+          <select
+            id="role"
+            className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
+            {...register('role', { required: 'Role is required' })}
+          >
+            <option value="sales">Sales</option>
+            <option value="admin">Admin</option>
+          </select>
+          {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
+        </div>
 
         <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>{isSubmitting ? 'Registering...' : 'Register'}</Button>
       </form>

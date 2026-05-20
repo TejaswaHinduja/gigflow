@@ -13,6 +13,9 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { useDebounce } from '@/hooks/useDebounce';
+import { getRole } from '@/lib/auth';
+import { exportLeadsCsv } from '@/lib/export';
 
 type Lead = {
   _id: string;
@@ -40,23 +43,23 @@ const API = 'http://localhost:2000';
 
 export default function LeadsPage() {
   const router = useRouter();
+  const role = getRole();
+  const isAdmin = role === 'admin';
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 0 });
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
   const [source, setSource] = useState('');
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [sort, setSort] = useState('latest');
   const [modal, setModal] = useState<'create' | 'edit' | null>(null);
   const [selected, setSelected] = useState<Lead | null>(null);
   const [serverError, setServerError] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<LeadForm>({ defaultValues: { status: 'New', source: 'Website' } });
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  const { register,handleSubmit,reset,formState: { errors, isSubmitting }} = useForm<LeadForm>({ defaultValues: { status: 'New', source: 'Website' } });
 
   function token() { return localStorage.getItem('token') || ''; }
 
@@ -64,21 +67,24 @@ export default function LeadsPage() {
     const params = new URLSearchParams({ page: String(page), sort });
     if (status) params.append('status', status);
     if (source) params.append('source', source);
-    if (search) params.append('search', search);
+    if (debouncedSearch) params.append('search', debouncedSearch);
 
-    const res = await fetch(`${API}/api/leads?${params}`, {
+    const res = await fetch(`${process.env.BACKEND_URL}/api/leads?${params}`, {
       headers: { Authorization: `Bearer ${token()}` },
     });
     if (res.status === 401) { router.push('/login'); return; }
     const data = await res.json();
     setLeads(data.leads);
     setPagination(data.pagination);
-  }, [page, status, source, search, sort, router]);
+  }, [page, status, source, debouncedSearch, sort, router]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) { router.push('/login'); return; }
     fetchLeads();
   }, [fetchLeads, router]);
+
+  // Reset to page 1 when debounced search changes
+  useEffect(() => { setPage(1); }, [debouncedSearch]);
 
   function openCreate() {
     reset({ name: '', email: '', status: 'New', source: 'Website' });
@@ -122,6 +128,20 @@ export default function LeadsPage() {
     fetchLeads();
   }
 
+  async function handleExport() {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (source) params.append('source', source);
+    if (debouncedSearch) params.append('search', debouncedSearch);
+
+    const res = await fetch(`${API}/api/leads/export?${params}`, {
+      headers: { Authorization: `Bearer ${token()}` },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    exportLeadsCsv(data.leads);
+  }
+
   function handleLogout() { localStorage.removeItem('token'); router.push('/login'); }
   function resetPage() { setPage(1); }
 
@@ -132,17 +152,19 @@ export default function LeadsPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Leads</h1>
           <div className="flex gap-2">
-            <Button onClick={openCreate}>Add Lead</Button>
+            {isAdmin && <Button onClick={openCreate}>Add Lead</Button>}
+            {isAdmin && (
+              <Button variant="outline" onClick={handleExport}>Export CSV</Button>
+            )}
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>
         </div>
 
-       
         <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center shadow-sm">
           <Input
             placeholder="Search name or email"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-52"
           />
           <DropdownMenu>
@@ -176,8 +198,8 @@ export default function LeadsPage() {
               <DropdownMenuItem onSelect={() => { setSort('oldest'); resetPage(); }}>Oldest</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {(status || source || search) && (
-            <Button variant="ghost" size="sm" onClick={() => { setStatus(''); setSource(''); setSearch(''); resetPage(); }}>
+          {(status || source || searchInput) && (
+            <Button variant="ghost" size="sm" onClick={() => { setStatus(''); setSource(''); setSearchInput(''); resetPage(); }}>
               Clear
             </Button>
           )}
@@ -192,13 +214,13 @@ export default function LeadsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
+                {isAdmin && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {leads.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-muted-foreground py-10">
                     No leads found
                   </TableCell>
                 </TableRow>
@@ -215,19 +237,20 @@ export default function LeadsPage() {
                   <TableCell className="text-muted-foreground">
                     {new Date(lead.createdAt).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => openEdit(lead)}>Edit</Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(lead._id)}>Delete</Button>
-                    </div>
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => openEdit(lead)}>Edit</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(lead._id)}>Delete</Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
 
-        
         {pagination.totalPages > 0 && (
           <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-muted-foreground">

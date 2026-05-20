@@ -6,7 +6,7 @@ import { generateToken } from '../lib/token';
 export const authRoutes = Router();
 
 authRoutes.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role = 'sales' } = req.body;
   if (!name || !email || !password) {
     res.status(400).json({ message: 'All fields are required' });
     return;
@@ -17,9 +17,9 @@ authRoutes.post('/signup', async (req, res) => {
     return;
   }
   const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, password: hashed });
-  const token = generateToken(user._id.toString());
-  res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+  const user = await User.create({ name, email, password: hashed, role });
+  const token = generateToken(user._id.toString(), user.role as string);
+  res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 });
 
 authRoutes.post('/login', async (req, res) => {
@@ -33,6 +33,6 @@ authRoutes.post('/login', async (req, res) => {
     res.status(401).json({ message: 'Invalid credentials' });
     return;
   }
-  const token = generateToken(user._id.toString());
-  res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+  const token = generateToken(user._id.toString(), user.role as string);
+  res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 });
